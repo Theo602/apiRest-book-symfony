@@ -2,14 +2,18 @@
 
 namespace App\Controller;
 
-use App\Entity\Author;
 use App\Entity\Book;
-use App\Repository\AuthorRepository;
+use App\Entity\Author;
 use App\Repository\BookRepository;
+use App\Repository\AuthorRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AuthorController extends AbstractController
@@ -32,4 +36,39 @@ class AuthorController extends AbstractController
         
     }
 
+    #[Route('/api/author/delete/{id}', name: 'deleteAuthor', methods: ['DELETE'])]
+    public function deleteAuthor(Author $author, EntityManagerInterface $em): JsonResponse
+    {
+
+        $em->remove($author);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/api/author/create', name: 'createAuthor', methods: ['POST'])]
+    public function createAuthor(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    {
+        $author = $serializer->deserialize($request->getContent(), Author::class, 'json');
+
+        $em->persist($author);
+        $em->flush();
+
+        $jsonAuthor = $serializer->serialize($author, 'json', ['groups' => 'getAuthor']);
+
+        $location = $urlGenerator->generate('detailsAuthor', ['id' => $author->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return new JsonResponse($jsonAuthor, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
+
+    #[Route('/api/author/edit/{id}', name: 'editAuthor', methods: ['PUT'])]
+    public function editAuthor(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, Author $currentAuthor): JsonResponse
+    {
+        $author = $serializer->deserialize($request->getContent(), Author::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $currentAuthor]);
+
+        $em->persist($author);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 }

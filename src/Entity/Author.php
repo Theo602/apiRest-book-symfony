@@ -25,7 +25,7 @@ class Author
     #[Groups(["getBooks", "getAuthor"])]
     private ?string $lastname = null;
 
-    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Book::class)]
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Book::class, cascade: ['persist', 'remove'])]
     #[Groups(["getAuthor"])]
     private Collection $books;
 
