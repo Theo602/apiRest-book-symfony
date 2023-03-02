@@ -12,13 +12,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AuthorController extends AbstractController
 {
-    #[Route('/api/author/', name: 'author', methods:['GET'])]
+    #[Route('/api/author/', name: 'author', methods: ['GET'])]
     public function getAllAuthor(AuthorRepository $authorRepository, SerializerInterface $serializer): JsonResponse
     {
 
@@ -27,13 +28,12 @@ class AuthorController extends AbstractController
         return new JsonResponse($jsonAuthorList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/api/author/{id}', name: 'detailsAuthor', methods:['GET'])]
+    #[Route('/api/author/{id}', name: 'detailsAuthor', methods: ['GET'])]
     public function getDetailAuthor(Author $author, SerializerInterface $serializer): JsonResponse
     {
-       
-            $jsonAuthor = $serializer->serialize($author, 'json', ['groups' => 'getAuthor']);
-            return new JsonResponse($jsonAuthor, Response::HTTP_OK, ['accept' => 'json'], true);
-        
+
+        $jsonAuthor = $serializer->serialize($author, 'json', ['groups' => 'getAuthor']);
+        return new JsonResponse($jsonAuthor, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/api/author/delete/{id}', name: 'deleteAuthor', methods: ['DELETE'])]
@@ -47,9 +47,16 @@ class AuthorController extends AbstractController
     }
 
     #[Route('/api/author/create', name: 'createAuthor', methods: ['POST'])]
-    public function createAuthor(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    public function createAuthor(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse
     {
         $author = $serializer->deserialize($request->getContent(), Author::class, 'json');
+
+        // On vérifie les erreurs
+        $errors = $validator->validate($author);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
 
         $em->persist($author);
         $em->flush();
