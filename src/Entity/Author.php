@@ -6,8 +6,39 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AuthorRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Serializer\Annotation\Groups;
+//use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "detailsAuthor",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getAuthor")
+ * )
+ * 
+ *  @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "deleteAuthor",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getAuthor", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ * 
+ *  @Hateoas\Relation(
+ *      "update",
+ *      href = @Hateoas\Route(
+ *          "editAuthor",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getAuthor", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
@@ -20,14 +51,14 @@ class Author
 
     #[ORM\Column(length: 255)]
     #[Groups(["getBooks", "getAuthor"])]
-    #[Assert\NotBlank(message: "Le nom de l'auteur est obligatoire")]
-    #[Assert\Length(min: 1, max: 60, minMessage: "Le nom doit faire au moins {{ limit }} caractères", maxMessage: "Le titre ne peut pas faire plus de {{ limit }} caractères")]
+    #[Assert\NotBlank(message: "Le prénom de l'auteur est obligatoire")]
+    #[Assert\Length(min: 1, max: 60, minMessage: "Le prénom doit faire au moins {{ limit }} caractères", maxMessage: "Le prénom ne peut pas faire plus de {{ limit }} caractères")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(["getBooks", "getAuthor"])]
     #[Assert\NotBlank(message: "Le nom de l'auteur est obligatoire")]
-    #[Assert\Length(min: 1, max: 60, minMessage: "Le nom doit faire au moins {{ limit }} caractères", maxMessage: "Le titre ne peut pas faire plus de {{ limit }} caractères")]
+    #[Assert\Length(min: 1, max: 60, minMessage: "Le nom doit faire au moins {{ limit }} caractères", maxMessage: "Le nom ne peut pas faire plus de {{ limit }} caractères")]
     private ?string $lastname = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Book::class, cascade: ['persist', 'remove'])]
