@@ -9,6 +9,7 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+        
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -40,6 +41,8 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/apip/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/apip, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

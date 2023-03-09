@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\BookRepository;
 //use Symfony\Component\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation\Since;
+use ApiPlatform\Metadata\ApiResource;
 use JMS\Serializer\Annotation\Groups;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -40,6 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  */
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ApiResource()]
 class Book
 {
     #[ORM\Id]

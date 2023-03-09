@@ -1,0 +1,14 @@
+api_platform:
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    patch_formats:
+        json: ['application/merge-patch+json']
+    swagger:
+        versions: [3]
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+                
+    title: "Api Books"
+    description: "Une API d'OpenClassrooms avec des livres, des autrices et des auteurs !"
